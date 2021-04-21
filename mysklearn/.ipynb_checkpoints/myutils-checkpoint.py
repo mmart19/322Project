@@ -12,7 +12,7 @@
 import copy
 import random 
 import math
-from tabulate import tabulate
+#from tabulate import tabulate
 from operator import itemgetter
 
 # TODO: your reusable general-purpose functions here
@@ -35,6 +35,25 @@ def compute_euclidean_distance(v1, v2):
         #dist = 1
     dist = (sum([(v1[i] - v2[i]) ** 2 for i in range(len(v1))])) ** (1/2)
     return dist
+
+def compute_equal_width_cutoffs(values, num_bins):
+    # first compute the range of the values
+    values_range = max(values) - min(values)
+    bin_width = values_range / num_bins 
+    # bin_width is likely a float
+    # if your application allows for ints, use them
+    # we will use floats
+    # np.arange() is like the built in range() but for floats
+    
+    cutoffs = []
+    #cutoffs.append(min(values))
+    count = 1
+    for count in range(num_bins):
+        cutoffs.append(min(values)+ bin_width * count)
+    #cutoffs.append(max(values))
+    # optionally: might want to round
+    cutoffs = [round(cutoff, 2) for cutoff in cutoffs]
+    return cutoffs
 
 
 """ Computes the slope and intercept
@@ -258,6 +277,73 @@ def get_mpg_class(mpg):
         return 2
     else:
         return 1
+    
+def get_seed_counts(seed):
+    """ Runs through the seed column determining counts for each seed
+
+    Args: 
+        seed (list of ints): list of ints
+        
+    Returns:
+        seed_values (list of ints): All possible seed values
+        seed_counts (list of ints): Counts for each seed
+"""
+    seed_values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    seed_counts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    
+    seed_copy = copy.deepcopy(seed)
+    
+    for value in range(len(seed_copy)):
+        seed[value] = int(seed[value])
+    
+    for index in range(len(seed_copy)):
+        if(seed_copy[index] == 1):
+            seed_counts[0] += 1
+        elif(seed_copy[index] == 2):
+            seed_counts[1] += 1
+        elif(seed_copy[index] == 3):
+            seed_counts[2] += 1
+        elif(seed_copy[index] == 4):
+            seed_counts[3] += 1
+        elif(seed_copy[index] == 5):
+            seed_counts[4] += 1
+        elif(seed_copy[index] == 6):
+            seed_counts[5] += 1
+        elif(seed_copy[index] == 7):
+            seed_counts[6] += 1
+        elif(seed_copy[index] == 8):
+            seed_counts[7] += 1
+        elif(seed_copy[index] == 9):
+            seed_counts[8] += 1
+        elif(seed_copy[index] == 10):
+            seed_counts[9] += 1
+        elif(seed_copy[index] == 11):
+            seed_counts[10] += 1
+        elif(seed_copy[index] == 12):
+            seed_counts[11] += 1
+        elif(seed_copy[index] == 13):
+            seed_counts[12] += 1
+        elif(seed_copy[index] == 14):
+            seed_counts[13] += 1
+        elif(seed_copy[index] == 15):
+            seed_counts[14] += 1
+        elif(seed_copy[index] == 16):
+            seed_counts[15] += 1
+            
+    return seed_values, seed_counts
+
+def get_elite_win_percentage(table):
+    elite_index = table.column_names.index("elite8?")
+    percentage_index = table.column_names.index("w-l%")
+    print(elite_index)
+    print(percentage_index)
+    win_percentage = []
+    
+    for row in range(len(table.data)):
+        if (table.data[row][elite_index] == "Yes"):
+            win_percentage.append(table.data[row][percentage_index])
+    
+    return win_percentage
 
 def convert_to_2d(self, column_name):
     index = self.index(column_name)

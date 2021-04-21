@@ -889,3 +889,32 @@ class MyPyTable:
         outer_join_table = MyPyTable(col_names, data)
         # Return "3rd" table
         return outer_join_table
+    
+    def get_win_bin_count(self, cutoffs, elite_win):
+        """Groups the mpg of each car into ranges depending on the cutoffs given. It will then
+        find the count of each range within the data
+
+        Args:
+            cutoffs(int): list of cutoffs for ranges in data
+            col_name(str): name of column to find rating of.
+
+        Returns:
+            list of int: Each rating that mpg can be grouped into
+            list of int: The frequency of each rating in the data.
+        """
+        win_bin_counts = [0] * len(cutoffs)
+
+        for index in range(len(elite_win)):
+            if elite_win[index] >= cutoffs[0] and elite_win[index] < cutoffs[1]:
+                win_bin_counts[0] = win_bin_counts[0] + 1
+            elif elite_win[index] >= cutoffs[1] and elite_win[index] < cutoffs[2]:
+                 win_bin_counts[1] = win_bin_counts[1] + 1
+            elif elite_win[index] >= cutoffs[2] and elite_win[index] < cutoffs[3]:
+                 win_bin_counts[2] = win_bin_counts[2] + 1
+            elif elite_win[index] >= cutoffs[3] and elite_win[index] < cutoffs[4]:
+                 win_bin_counts[3] = win_bin_counts[3] + 1
+            elif elite_win[index] >= cutoffs[4]:
+                 win_bin_counts[4] = win_bin_counts[4] + 1
+        
+        
+        return win_bin_counts

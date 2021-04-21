@@ -192,7 +192,7 @@ class MyKNeighborsClassifier:
         """
         
         
-        for idx in one_d_arr:
+        for idx in range(len(one_d_arr)):
             if self.y_train[idx] in neighbors:
                 neighbors[self.y_train[idx]] += 1
             else:
