@@ -440,6 +440,55 @@ class MyRandomClassifier:
         # Return y_predicted
         return y_predicted
     
+class MyRandomClassifier:
+    """Represents a Random classifier. Predicts a class by choosing
+    randomly but being weighted by class label.
+
+    Attributes:
+        y_train(list of obj): The target y values (parallel to X_train). 
+            The shape of y_train is n_samples
+
+    """
+    def __init__(self):
+        """Initializer for MyRandomClassifer
+
+        """
+        self.y_train = None
+        self.priors = None 
+
+    def fit(self,y_train):
+        """Fits a Random classifier to y_train.
+
+        Args:
+            y_train(list of obj): The target y values (parallel to X_train)
+                The shape of y_train is n_train_samples
+        """
+
+        # Setting object's Y_train from args
+        self.y_train = y_train
+
+
+    def predict(self, X_test):
+        """Makes predictions for test instances in X_test.
+
+        Args:
+            X_test(list of list of obj): The list of testing samples
+                The shape of X_test is (n_test_samples, n_features)
+
+        Returns:
+            y_predicted(list of obj): The predicted target y values (parallel to X_test)
+        """
+        y_predicted = []
+
+        count = 0
+        while count < len(X_test):
+            rand_number = random.randint(0, len(self.y_train) -1)
+            y_predicted.append(self.y_train[rand_number])
+            count += 1
+        
+        
+        return y_predicted
+    
 class MyDecisionTreeClassifier:
     """Represents a decision tree classifier.
 
