@@ -660,3 +660,59 @@ def get_rule(stack, value, attribute_names, class_name):
             rule += "AND "
     rule += str(class_name) + " = " + str(value)
     return rule
+
+
+
+"""Function from class
+
+"""
+def compute_bootstrapped_sample(table):
+    n = len(table)
+    sample = []
+    test = [x for x in range(n)]
+    for _ in range(n):
+        rand_index = random.randrange(0,n)
+        sample.append(table[rand_index])
+        try:
+            test.remove(rand_index)
+        except ValueError:
+            pass
+    test_set = []
+    for i in range(len(test)):
+        test_set.append(table[test[i]])
+    return sample, test_set
+
+
+"""Function from class
+
+"""
+def compute_random_subset(values, num_values):
+    shuffled = values[:] # shallow copy
+    random.shuffle(shuffled)
+    return shuffled[:num_values]
+    
+""" Function to get the frequency
+
+"""
+def get_frequency(pred):
+    # Set items list
+    items = []
+    # Set frequency
+    frequency = []
+    # Traverse
+    for val in pred:
+        # Try 
+        try:
+            # Set index
+            index = items.index(val)
+            # Increment pos in frequency
+            frequency[index] += 1
+        # Wrong
+        except ValueError:
+            # Append to items
+            items.append(val)
+            # Append 1 
+            frequency.append(1)
+    # Return items and frequency
+    return items, frequency
+    

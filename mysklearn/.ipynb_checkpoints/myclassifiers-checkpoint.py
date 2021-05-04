@@ -11,6 +11,7 @@
 import mysklearn.myutils as myutils
 import copy
 import random
+from operator import itemgetter
 
 class MySimpleLinearRegressor:
     """Represents a simple linear regressor.
@@ -462,7 +463,7 @@ class MyDecisionTreeClassifier:
         self.y_train = None
         self.tree = None
 
-    def fit(self, X_train, y_train):
+    def fit(self, X_train, y_train, allowed_attributes = None):
         """Fits a decision tree classifier to X_train and y_train using the TDIDT (top down induction of decision tree) algorithm.
 
         Args:
@@ -482,10 +483,14 @@ class MyDecisionTreeClassifier:
         self.X_train = X_train
         self.y_train = y_train
         # Set the header
-        header = ['att' + str(i) for i in range(len(self.X_train[0]))]
+        header = []
         # Delete header from X_train
-        del self.X_train[0]
         # Make a copy of the header
+        if allowed_attributes is not None:
+            header = allowed_attributes
+        else:
+            header = ['att' + str(i) for i in range(len(self.X_train[0]))]
+        del self.X_train[0] 
         available_attributes = header.copy()
         # Get the attribute domains
         attribute_domains = myutils.get_attribute_domains(self.X_train, header)
@@ -545,3 +550,113 @@ class MyDecisionTreeClassifier:
             You will need to install graphviz in the Docker container as shown in class to complete this method.
         """
         pass # TODO: (BONUS) fix this
+
+class MyRandomForestClassifier:
+    def __init__(self, N, M, F):
+        """Initializer for MyRandomForestClassifier.
+        
+        """
+        self.X_train = None 
+        self.y_train = None
+        self.forest = None
+        self.N = N
+        self.M = M
+        self.F = F
+        
+    def fit(self, X_train, y_train):
+        # Set X_train
+        self.X_train = X_train
+        # Set y_train
+        self.y_train = y_train
+        # Set header
+        header = ['att' + str(i) for i in range(len(self.X_train[0]))]
+        # Delete header
+        del self.X_train[0]
+        # Set train
+        train = [X_train[i] + [y_train[i]] for i in range(len(X_train))]
+        # Create forest array
+        forest = []
+        # Traverse
+        for _ in range(self.N):
+            # Create tree dictionary
+            tree = {}
+            # Set attributes
+            tree['atts'] = myutils.compute_random_subset(header[:-1], self.F)
+            # Get train set and test set
+            train_set, test_set = myutils.compute_bootstrapped_sample(train)
+            # Set tree
+            tree['tree'] = self.get_tree(train_set, tree['atts'] + [header[-1]])
+            # Set accuracy
+            tree['accuracy'] = self.compute_tree_accuracy(tree, test_set)
+            # Append tree to forest
+            forest.append(tree)
+        # Sort
+        sort = sorted(forest, key=itemgetter('accuracy'), reverse=True)
+        # Set forest
+        self.forest = sort[:self.M]
+        
+    def predict(self, X_test):
+        # Create y_predicted list
+        y_predicted = []
+        # Predicted list
+        predicted = []
+        # Traverse forest
+        for tree in self.forest:
+            # Get the instance
+            the_tree = tree['tree']
+            # Call predict
+            prediction = the_tree.predict(X_test)
+            # Append to predicted
+            predicted.append(prediction)
+        # Traverse X_test
+        for i in range(len(X_test)):
+            # Create curr list
+            curr = []
+            # Traverse forest
+            for j in range(len(self.forest)):
+                # Append predicted[j][i] to curr
+                curr.append(predicted[j][i])
+            # Get items and frequency
+            items, frequency = myutils.get_frequency(curr)
+            # Get the best
+            best = max(frequency)
+            # Get the index of the best 
+            the_index = frequency.index(best)
+            # Append the prediction to y_prediction
+            y_predicted.append(items[the_index])
+        # Return y_predicted
+        return y_predicted
+    
+    def get_tree(self, train, attr):
+        # Create an instance of MyDecisionTreeClassifier 
+        tree = MyDecisionTreeClassifier()
+        # Set x 
+        x = [row[:-1] for row in train]
+        # Set y 
+        y = [col[-1] for col in train]
+        # Fit tree 
+        tree.fit(x, y, attr)
+        # Return tree
+        return tree
+    
+    def compute_tree_accuracy(self, tree, test_set):
+        # Set x 
+        x = [row[:-1] for row in test_set]
+        # Set Actual
+        actual = [row[-1] for row in test_set]
+        # Set predicted
+        predicted = tree['tree'].predict(x)
+        # Set total
+        total = 0
+        # Traverse 
+        for i in range(len(actual)):
+            # Match
+            if actual[i] == predicted[i]:
+                # Increment total
+                total += 1
+        # Set accuracy
+        accuracy = total / len(actual)
+        # Return accuracy
+        return accuracy
+    
+    
