@@ -55,6 +55,87 @@ def compute_equal_width_cutoffs(values, num_bins):
     cutoffs = [round(cutoff, 2) for cutoff in cutoffs]
     return cutoffs
 
+def rank_by_bin_nums(data, num_bins):
+    min_value = min(data)
+    max_value = max(data)
+    ranked_data = copy.deepcopy(data)
+    
+    value_range = max_value - min_value
+    bin_range = value_range / num_bins
+    
+    cutoff_values = [0] * num_bins
+    for i in range(len(cutoff_values)):
+        cutoff_values[i] = round(min_value + bin_range * i, 3)
+        
+    for j in range(len(data)):
+        if data[j] >= cutoff_values[0] and data[j] < cutoff_values[1]:
+            ranked_data[j] = 1
+        elif data[j] >= cutoff_values[1] and data[j] < cutoff_values[2]:
+            ranked_data[j] = 2
+        elif data[j] >= cutoff_values[2] and data[j] < cutoff_values[3]:
+            ranked_data[j] = 3
+        elif data[j] >= cutoff_values[3] and data[j] < cutoff_values[4]:
+            ranked_data[j] = 4
+        elif data[j] >= cutoff_values[4]:
+            ranked_data[j] = 5
+            
+        
+    return ranked_data
+
+def get_mode(data):
+    
+    values = []
+    for item in data:
+        if item not in values:
+            values.append(item)
+    
+    counts = [0]* len(values)
+    for i in range(len(values)):
+        for k in range(len(data)):
+            if data[k] == values[i]:
+                counts[i] += 1
+            
+    max_index = 0 
+    curr_max = 0
+    for j in range(len(counts)):
+        if counts[j] > curr_max:
+            curr_max = counts[j]
+            max_index = j
+            
+    return values[max_index]
+    
+
+def get_sum_stats(data):
+    data_copy = copy.deepcopy(data)
+    data_copy.sort()
+    min_value = 0
+    max_value = 0
+    median = 0
+    average = 0
+    
+    
+    min_value = min(data_copy)
+    max_value = max(data_copy)
+    median = int(len(data_copy) / 2)
+    
+    if median % 2 == 0:
+        median = data_copy[median / 2]
+    else:
+        median += .5
+        median = int(median)
+        median = data_copy[median]
+        
+    total = 0 
+    for i in range(len(data_copy)):
+        total += data_copy[i]
+    average = round(total / len(data_copy), 3)
+    
+    mode = get_mode(data_copy)
+    
+    return min_value, max_value, median, average, mode
+     
+    
+
 
 """ Computes the slope and intercept
     
@@ -71,6 +152,16 @@ def compute_slope(col1_data, col2_data):
     m = sum([(col1_data[i] - mean1) * (col2_data[i] - mean2) for i in range(len(col1_data))]) / sum([(col1_data[i] - mean1) ** 2 for i in range(len(col1_data))])
     b = mean2 - m * mean1
     return m, b
+
+def get_average(seed_ppg):
+    
+    total = 0
+    for i in range(len(seed_ppg)):
+        total += seed_ppg[i]
+    
+    average = total / len(seed_ppg)
+    
+    return average
 
 """ Normalizes the set of data
     
@@ -107,7 +198,11 @@ def normalize(x_train, x_test):
     for row in range(len(x_train)):
         x_train[row][0] /= the_max_x1
         x_train[row][1] /= the_max_x2
-
+    
+    
+    print(the_min_x1)
+    print(the_min_x2)
+    print(x_test[0][0])
     x_test[0][0] = (x_test[0][0] - the_min_x1) / the_max_x1
     x_test[0][1] = (x_test[0][1] - the_min_x2) / the_max_x2
     
@@ -332,15 +427,24 @@ def get_seed_counts(seed):
             
     return seed_values, seed_counts
 
-def get_elite_win_percentage(table):
-    elite_index = table.column_names.index("elite8?")
-    percentage_index = table.column_names.index("w-l%")
-    print(elite_index)
-    print(percentage_index)
+def get_sweet_overall_win_percentage(table):
+    sweet_index = table.column_names.index("sweet-16?")
+    percentage_index = table.column_names.index("Overall W-L%")
     win_percentage = []
     
     for row in range(len(table.data)):
-        if (table.data[row][elite_index] == "Yes"):
+        if (table.data[row][sweet_index] == "Yes"):
+            win_percentage.append(table.data[row][percentage_index])
+    
+    return win_percentage
+
+def get_sweet_conference_win_percentage(table):
+    sweet_index = table.column_names.index("sweet-16?")
+    percentage_index = table.column_names.index("Conference W-L%")
+    win_percentage = []
+    
+    for row in range(len(table.data)):
+        if (table.data[row][sweet_index] == "Yes"):
             win_percentage.append(table.data[row][percentage_index])
     
     return win_percentage

@@ -12,11 +12,14 @@ def bar_chart_elite_win(x, y):
     plt.xticks(x)
     plt.show()
     
-def bar_chart_seed(x, y):
-    plt.figure( figsize=(28,8))
+def bar_chart_seed(x, y, chart_label, x_label, y_label):
+    plt.figure()
     plt.bar(x, y, align="edge", width=.3)
+    plt.suptitle(chart_label, fontsize=12, fontweight="bold")
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.xticks(x)
-    plt.yticks(np.arange(24))
+    plt.yticks()
     plt.show()
 
     
@@ -32,8 +35,11 @@ def histogram_example(data):
     #plt.hist(data2, bins=20)
     plt.show()
 
-def scatter_plot(x, y):
+def scatter_plot(x, y, chart_label, x_label, y_label):
     plt.figure()
+    plt.suptitle(chart_label, fontsize=12, fontweight="bold")
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.scatter(x, y)
     plt.show()
 
