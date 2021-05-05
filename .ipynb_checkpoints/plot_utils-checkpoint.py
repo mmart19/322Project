@@ -28,9 +28,12 @@ def pie_chart_example(x, y):
     plt.pie(y, labels=x, autopct="%1.1f%%")
     plt.show()
 
-def histogram_example(data):
+def histogram_example(data, chart_label, x_label, y_label):
     # data is a 1D list of data values
     plt.figure()
+    plt.suptitle(chart_label, fontsize=12, fontweight="bold")
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.hist(data, bins=10) # default is 10
     #plt.hist(data2, bins=20)
     plt.show()

@@ -200,9 +200,6 @@ def normalize(x_train, x_test):
         x_train[row][1] /= the_max_x2
     
     
-    print(the_min_x1)
-    print(the_min_x2)
-    print(x_test[0][0])
     x_test[0][0] = (x_test[0][0] - the_min_x1) / the_max_x1
     x_test[0][1] = (x_test[0][1] - the_min_x2) / the_max_x2
     
