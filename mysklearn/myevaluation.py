@@ -13,6 +13,7 @@ import mysklearn.myutils as myutils
 import copy
 import numpy as np
 import math
+import random
 
 def train_test_split(X, y, test_size=0.33, random_state=None, shuffle=True):
     """Split dataset into train and test sets (sublists) based on a test set size.
@@ -147,37 +148,48 @@ def stratified_kfold_cross_validation(X, y, n_splits=5):
         Loosely based on sklearn's StratifiedKFold split(): https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.StratifiedKFold.html#sklearn.model_selection.StratifiedKFold
     """    
     # Create a list of list with len of n_splits 
-    total_folds = [[] for _ in range(n_splits)]
+    #total_folds = [[] for _ in range(n_splits)]
     # The list of training set indices for each fold.
-    X_train_folds = [[] for _ in range(n_splits)]
+    #X_train_folds = [[] for _ in range(n_splits)]
     # The list of testing set indices for each fold.
-    X_test_folds = [[] for _ in range(n_splits)]
+    #X_test_folds = [[] for _ in range(n_splits)]
     # Call group to group the folds
     grouped_folds = myutils.group(X, y, n_splits)
-    # Index variable
-    index = 0
-    # Traverse
-    for row in grouped_folds:
-        for col in row:
-            # Append the index sets
-            total_folds[index].append(col)
-            index = (index + 1) % n_splits
-    # Reset index
-    index = 0
-    # Traverse
+    test_index = random.randrange(0, n_splits)
+    X_train_folds = []
+    X_test_folds = []
+    
     for i in range(n_splits):
-        for j, row in enumerate(total_folds):
+        if i == test_index:
+            X_test_folds.append(grouped_folds[test_index])
+        else:
+            X_train_folds.append(grouped_folds[i])
+    # Index variable
+    #index = 0
+    # Traverse
+    #for row in grouped_folds:
+        #for col in row:
+            # Append the index sets
+            #total_folds[index].append(col)
+            #index = (index + 1) % n_splits
+    # Reset index
+    #index = 0
+    # Traverse
+    #for i in range(n_splits):
+        #for j, row in enumerate(total_folds):
             # Not a match
-            if(i != j):
+            #if(i != j):
+                #print("i: ",i)
+                #print("j: ", j)
                 # Traverse
-                for col in row:
+                #for col in row:
                     # Append the index
-                    X_train_folds[index].append(col)
+                    #X_train_folds[index].append(col)
             # Match
-            else:
-                X_test_folds[index] = row
+            #else:
+                #X_test_folds[index] = row
         # Increment the index
-        index += 1
+        #index += 1
     # Return X_train_folds, X_test_folds
     return X_train_folds, X_test_folds
 

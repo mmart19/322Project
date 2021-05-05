@@ -55,7 +55,7 @@ def compute_equal_width_cutoffs(values, num_bins):
     cutoffs = [round(cutoff, 2) for cutoff in cutoffs]
     return cutoffs
 
-def rank_by_bin_nums(data, num_bins):
+def rank_by_bin_nums(X, data, num_bins):
     min_value = min(data)
     max_value = max(data)
     ranked_data = copy.deepcopy(data)
@@ -81,6 +81,64 @@ def rank_by_bin_nums(data, num_bins):
             
         
     return ranked_data
+
+def get_column(table, col_index, include_missing_values=True):
+        """Extracts a column from the table data as a list.
+
+        Args:
+            col_identifier(str or int): string for a column name or int
+                for a column index
+
+        Returns:
+            tuple of int: rows, cols in the table
+
+        Notes:
+            Raise ValueError on invalid col_identifier
+        """
+        # Index of identifier
+        
+        # Col array
+        col = []
+        # User doesn't want rows with missing values 
+        if include_missing_values == False:
+            for row in table: 
+                # If the row isn't empty then append
+                if row[col_index] != "NA":
+                    col.append(row[col_index])
+        # User wants rows with missing values
+        else:
+            # Append to the col
+            for row in table:
+                col.append(row[col_index])
+        # return the col
+        return col
+
+def rank_by_bin_nums_2D(data, num_bins, col_index):
+    data_list = get_column(data, col_index)
+    min_value = min(data_list)
+    max_value = max(data_list)
+    
+    value_range = max_value - min_value
+    bin_range = value_range / num_bins
+    
+    cutoff_values = [0] * num_bins
+    for i in range(len(cutoff_values)):
+        cutoff_values[i] = round(min_value + bin_range * i, 3)
+        
+    for j in range(len(data)):
+        if data[col_index][j] >= cutoff_values[0] and data[col_index][j] < cutoff_values[1]:
+            data[col_index][j] = 1
+        elif data[col_index][j] >= cutoff_values[1] and data[col_index][j] < cutoff_values[2]:
+            data[col_index][j] = 2
+        elif data[col_index][j] >= cutoff_values[2] and data[col_index][j] < cutoff_values[3]:
+            data[col_index][j] = 3
+        elif data[col_index][j] >= cutoff_values[3] and data[col_index][j] < cutoff_values[4]:
+            data[col_index][j] = 4
+        elif data[col_index][j] >= cutoff_values[4]:
+            data[col_index][j] = 5
+            
+        
+    return 0
 
 def get_mode(data):
     
@@ -231,61 +289,118 @@ def itemgetter(*items):
         grouped_folds: a list of lists with the folds grouped
 """
 def group(X, y, n_splits):
-    # Represents the y_labels
-    y_labels = []
-    # List of the counts
-    count_list = []
-    # Traverse
-    for label in y:
-        # Not seen before
-        if label not in y_labels:
-            # Append the label
-            y_labels.append(label)
-            # Append 1 
-            count_list.append(1)
-        # Seen before
-        elif label in y_labels:
-            # Get the index
-            index = y_labels.index(label)
-            # Increment the instance
-            count_list[index] += 1
-    # Vals in X
-    x_train = []
-    # Y labels
-    updated_y_labels = []
-    # Traverse
-    for x in range(len(y)):
-        # Not seen before
-        if y[x] not in updated_y_labels:
-            # Append the index
-            updated_y_labels.append(x)
-            # Traverse
-            for i in range(len(y_labels)):
-                #Traverse
-                for j in range(len(y)):
-                    # Match
-                    if y[j] == y_labels[i]:
-                        # Append j to x_train
-                        x_train.append(j)
-        break
-    # Empty list 
-    grouped_folds = [[] for _ in range(n_splits)]
-    # Element Count
-    element_count = 0
-    # Row Count
-    row_count = -1
-    # Traverse
-    for i in range(len(x_train)):
-        # Increase the row count if the mod of element count == 0
-        if element_count % ((len(x_train) + 1) / 2) == 0:
-            # Increment row count
-            row_count += 1
-        # Append to grouped_folds
-        grouped_folds[row_count].append(x_train[element_count])
-        # Increment element count
-        element_count += 1
-    # Return grouped_folds
-    return grouped_folds
+    
+    label_counts = [0, 0]
+    label_indices = [[], []]
+    for i in range(len(y)):
+        if y[i] == "No":
+            label_counts[0] += 1
+            label_indices[0].append(i)
+        elif y[i] == "Yes":
+            label_counts[1] += 1
+            label_indices[1].append(i)
+            
+    
+    label_percentages = [0, 0]
+    for j in range(len(label_percentages)):
+        label_percentages[j] = round(label_counts[j] / len(y), 2)
+    
+    label_splits = [0, 0]
+    for index in range(len(label_splits)):
+        label_splits[index] = round(label_counts[index] / n_splits, 0)
+    
+    for i in range(len(label_splits)):
+        label_splits[i] = int(label_splits[i])
+    
+    
+    #Grouping Folds
+    x_fold = [] #* n_splits
+    
+    for i in range(n_splits):
+        if i == 0:
+            curr_no_max = label_splits[0] 
+            curr_yes_max = label_splits[1] 
+            j = 0
+            curr_fold = []
+            while j < curr_no_max:
+                curr_fold.append(label_indices[0][j])
+                j += 1
+            j = 0
+            while j < curr_yes_max:
+                curr_fold.append(label_indices[1][j])
+                j += 1
+            x_fold.append(curr_fold)
+        if i == 1:
+            curr_no_max = label_splits[0] * 2
+            curr_yes_max = label_splits[1] * 2
+            j = label_splits[0] 
+            curr_fold = []
+            while j < curr_no_max:
+                curr_fold.append(label_indices[0][j])
+                j += 1
+            j = label_splits[1] 
+            while j < curr_yes_max:
+                curr_fold.append(label_indices[1][j])
+                j += 1
+            x_fold.append(curr_fold)
+        if i == 2:
+            curr_no_max = label_splits[0] * 3
+            curr_yes_max = label_splits[1] * 3
+            j = label_splits[0] * 2
+            curr_fold = []
+            while j < curr_no_max -1:
+                curr_fold.append(label_indices[0][j])
+                j += 1
+            j = label_splits[1] *2
+            while j < curr_yes_max -1:
+                curr_fold.append(label_indices[1][j])
+                j += 1
+            x_fold.append(curr_fold)
+    return x_fold
+    
+def get_data_by_indice(X_train_indices, X_test_indices, table):
+    X_train = []
+    X_test = []
+    y_test = []
+    y_train = []
+    
+    train_indices = X_train_indices[0] + X_train_indices[1]
+    test_indices = X_test_indices [0]
+    
+    total = len(train_indices)
+    curr = 0
+    while curr < total:
+        for row in range(len(table)):
+            if curr == total:
+                break
+            if train_indices[curr] == row:
+                X_train.append(table[row])
+                curr += 1
+    
+    total = len(test_indices)
+    curr = 0
+    while curr < total:
+        for row in range(len(table)):
+            if curr == total:
+                break
+            if test_indices[curr] == row:
+                X_test.append(table[row])
+                curr +=1
+    
+    print(len(X_train))
+    print(len(X_test))
+    
+    for row in range(len(X_train)):
+        y_train.append(X_train[row][-1])
+        del X_train[row][-1]
+        
+    for row in range(len(X_test)):
+        y_test.append(X_test[row][-1])
+        del X_test[row][-1]
+    
+    return X_train, X_test, y_train, y_test
+    
+    
         
 def get_vals(table, column_index, is_two_dim):
     vals = []
