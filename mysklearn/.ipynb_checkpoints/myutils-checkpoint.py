@@ -55,7 +55,7 @@ def compute_equal_width_cutoffs(values, num_bins):
     cutoffs = [round(cutoff, 2) for cutoff in cutoffs]
     return cutoffs
 
-def rank_by_bin_nums(X, data, num_bins):
+def rank_by_bin_nums(data, num_bins):
     min_value = min(data)
     max_value = max(data)
     ranked_data = copy.deepcopy(data)
